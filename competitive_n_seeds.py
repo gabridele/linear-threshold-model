@@ -36,8 +36,8 @@ def run_cascade_single_population(adj_matrix, thr, seed_node_index, rival=None):
         infected_inputs = np.sum(infected_connections, axis=0)
 
         if rival is not None:
-            # Set inputs from rival seed to zero to prevent infection
-            infected_inputs[rival] = 0
+            for rival_index in rival:
+                infected_inputs[rival_index] = 0
         
         infected_nodes_indices = np.where(infected_inputs / input_to_node > thr)[0]
         
@@ -109,7 +109,7 @@ def find_thr(adj_matrix, starting_thr):
     
 
 def main(num_seeds):
-    adj_matrix = pd.read_csv('/Users/gabrieledele/Desktop/connectome_sub-100206.csv', header=None).to_numpy().astype(float)
+    adj_matrix = pd.read_csv('/Users/gabrieledele/Desktop/dummy_matrix.csv', header=None).to_numpy().astype(float)
     zero_rows = np.where(np.sum(adj_matrix, 0) == 0)[0].tolist()
     adj_matrix_clean = np.delete(adj_matrix, zero_rows, axis=0)
     adj_matrix_clean = np.delete(adj_matrix_clean, zero_rows, axis=1)
@@ -125,7 +125,7 @@ def main(num_seeds):
 
     for seed_node_index in seed_node_indices:
         print('seed_node_index:', seed_node_index)
-        inf_nodes, activation_strengths = run_cascade_single_population(adj_matrix_clean, thr, seed_node_index)
+        inf_nodes, activation_strengths = run_cascade_single_population(adj_matrix_clean, thr, seed_node_index, rival=seed_node_indices)
         inf_nodes_list.append(inf_nodes)
         activation_strengths_list.append(activation_strengths)
 
