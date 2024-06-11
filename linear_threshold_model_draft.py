@@ -1,5 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+@author: ludovico coletta
+@author: gabriele de leonardis
+"""
+
 import numpy as np
 import pandas as pd
+import sys
 import time
 
 def run_cascade_single_population(adj_matrix, thr, seed_node_index):
@@ -48,7 +55,8 @@ def find_thr(adj_matrix, starting_thr):
     max_thresholds_per_node = np.asarray([visited_thresholds_per_node[ii][-1] for ii in range(len(visited_thresholds_per_node))])
     bottleneck_node = np.where(max_thresholds_per_node == np.min(max_thresholds_per_node))[0]
     thrs = np.linspace(visited_thresholds_per_node[bottleneck_node[0]][-2], visited_thresholds_per_node[bottleneck_node[0]][-1], 100, endpoint=True)
-    visited_thresholds_of_bottleneck_node = [thrs[0]]
+    visited_thresholds_of_bottleneck_node=[]
+    visited_thresholds_of_bottleneck_node.append(thrs[0])
     final_thr_per_node = []
     
     for node in bottleneck_node:
@@ -95,6 +103,7 @@ def run_cascade_multiple_populations(adj_matrix, thr, n_pop, n_sim):
             nodes_to_check = sorted(list(set([ii for ii in nodes_to_check if ii not in dummy_list])))
             
             if len(nodes_to_check) == 0:
+                #print('I got stuck')
                 stuck = stuck + 1
                 break
             else:
@@ -116,15 +125,29 @@ def run_cascade_multiple_populations(adj_matrix, thr, n_pop, n_sim):
                     for j in node_set:
                         if i != j:
                             association_matrix[i, j] += 1
+        elif stuck == 1: 
+            infected_nodes_per_run.pop()
         
         counter_sim += 1
     
     association_matrix /= n_sim
     return infected_nodes_per_run, association_matrix
 
-def main():
-    adj_matrix = pd.read_csv('/Users/gabrieledele/Desktop/symmetric_matrix.csv', header=None).to_numpy().astype(float)
+def main(input_file_path):
+    
+    # Extract subject ID from the file path
+    sub_id = input_file_path.split('/')[-3]
+
+    adj_matrix = pd.read_csv(input_file_path, delimiter=',', header=None).to_numpy().astype(float)
+
+    #adj_matrix = pd.read_csv('dummy_matrix_2.csv', header=None).to_numpy().astype(float)
     zero_rows = np.where(np.sum(adj_matrix, 0) == 0)[0].tolist()
+
+    # initialize array to store zero connection nodes, with same index
+    zero_connection_nodes = np.full(adj_matrix.shape[0], -1)
+    for index in zero_rows:
+        zero_connection_nodes[index] = index
+
     adj_matrix_clean = np.delete(adj_matrix, zero_rows, axis=0)
     adj_matrix_clean = np.delete(adj_matrix_clean, zero_rows, axis=1)
     
@@ -143,10 +166,24 @@ def main():
         n_steps_needed[ii] = len(run_cascade_single_population(adj_matrix_clean, thr, ii))
     
     start_time = time.time()
-    n_sim_run, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, 2, 10000)
+    _, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, 2, 10000)
     print(f"Time to run competitive cascades: {time.time() - start_time} seconds")
     
-    np.savetxt("association_matrix.csv", association_matrix, delimiter=",")
+    association_matrix_filename = f"association_matrix_{sub_id}.csv"
+    zero_connection_nodes_filename = f"zero_connection_nodes_{sub_id}.csv"
+    
+    np.savetxt(association_matrix_filename, association_matrix, delimiter=",")
+    np.savetxt(zero_connection_nodes_filename, zero_connection_nodes, delimiter=",")
+
     
 if __name__ == "__main__":
-    main()
+    # Check if the number of arguments is correct
+    if len(sys.argv) != 2:
+        print("Correct syntax: python this_script.py input_file_path")
+        sys.exit(1)
+    
+    # Get the input file path from the command-line arguments
+    input_file_path = sys.argv[1]
+    
+    # Call the main function with the input file path
+    main(input_file_path)

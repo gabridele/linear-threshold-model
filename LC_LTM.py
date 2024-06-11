@@ -171,8 +171,8 @@ def run_cascade_multiple_populations(adj_matrix, thr, n_pop, n_sim):
                                        
 def main():
     
-    adj_matrix=pd.read_csv('sub-10227_Schaefer2018_400Parcels_Tian_Subcortex_S4_1mm_5000000mio_connectome.csv',delimiter=',',header=None).to_numpy().astype(float)
-   #adj_matrix=pd.read_csv('dummy_matrix_2.csv',header=None).to_numpy().astype(float)
+    #adj_matrix=pd.read_csv('sub-10227_Schaefer2018_400Parcels_Tian_Subcortex_S4_1mm_5000000mio_connectome.csv',delimiter=',',header=None).to_numpy().astype(float)
+    adj_matrix=pd.read_csv('dummy_matrix_2.csv',header=None).to_numpy().astype(float)
     zero_rows=np.where(np.sum(adj_matrix,0)==0)[0].tolist()
     adj_matrix_clean=np.delete(adj_matrix, zero_rows,axis=0)
     adj_matrix_clean=np.delete(adj_matrix_clean, zero_rows,axis=1)
