@@ -3,7 +3,8 @@ path_der="derivatives/"
 function simulation {
  input="$1"
 
- python ../code/linear_threshold_model_association.py "$input"
+ python python ../code/linear_threshold_model_association.py "$input"
+ 
 }
 
 export -f simulation

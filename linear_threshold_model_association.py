@@ -87,6 +87,7 @@ def run_cascade_multiple_populations(adj_matrix, thr, n_pop, n_sim):
     
     while len(infected_nodes_per_run) < n_sim:
         seed_node_indices = sorted(np.random.choice(adj_matrix.shape[0], size=n_pop, replace=False).tolist())
+        print("seeds:", seed_node_indices)
         seed_node_indices = [[ii] for ii in seed_node_indices]
         infected_nodes = np.zeros((adj_matrix.shape[0]))
         input_to_node = np.sum(adj_matrix, axis=0)
@@ -172,18 +173,19 @@ def main(input_file_path):
     start_time = time.time()
     bottl_nodes, thr = find_thr(adj_matrix_clean, starting_thr)
     print(f"Time to find threshold: {time.time() - start_time} seconds")
-    
+    print("threshold found:", thr)
     n_steps_needed = [None] * adj_matrix_clean.shape[0]
     
     for ii in range(len(n_steps_needed)):
         n_steps_needed[ii] = len(run_cascade_single_population(adj_matrix_clean, thr, ii))
     
     start_time = time.time()
-    _, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, 2, 100000)
+    _, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, 2, 4)
+    print("infected nodes per run:", _)
     print(f"Time to run competitive cascades: {time.time() - start_time} seconds")
     
-    association_matrix_filename = f"derivatives/{sub_id}/dwi/association_matrix_{sub_id}100k.csv"
-    zero_connection_nodes_filename = f"derivatives/{sub_id}/dwi/zero_connection_nodes_{sub_id}100k.csv"
+    association_matrix_filename = f"derivatives/{sub_id}/dwi/association_matrix_{sub_id}2.csv"
+    zero_connection_nodes_filename = f"derivatives/{sub_id}/dwi/zero_connection_nodes_{sub_id}2.csv"
 
     np.savetxt(association_matrix_filename, association_matrix, delimiter=",")
     np.savetxt(zero_connection_nodes_filename, zero_connection_nodes_matrix, delimiter=",")
