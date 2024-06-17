@@ -4,10 +4,12 @@
 @author: gabriele de leonardis
 """
 
+from multiprocessing import Process
 import numpy as np
 import pandas as pd
 import sys
 import time
+from multiprocessing import Pool
 
 def run_cascade_single_population(adj_matrix, thr, seed_node_index):
     infected_nodes = np.zeros((adj_matrix.shape[0]))
@@ -35,6 +37,7 @@ def run_cascade_single_population(adj_matrix, thr, seed_node_index):
         
     return list_of_infected_nodes_per_iter
 
+          
 def find_thr(adj_matrix, starting_thr):
     visited_thresholds_per_node = [None] * adj_matrix.shape[0]
     
@@ -51,11 +54,11 @@ def find_thr(adj_matrix, starting_thr):
                 thr /= 100
             else:
                 break
-        
+    
         # debug
         print(f"Node {seed_node_index}: visited thresholds = {visited_thresholds_per_node[seed_node_index]}")
         
-    max_thresholds_per_node = np.asarray([visited_thresholds_per_node[ii][-1] if visited_thresholds_per_node[ii] else np.inf for ii in range(len(visited_thresholds_per_node))])
+    max_thresholds_per_node = np.asarray([visited_thresholds_per_node[ii][-1] for ii in range(len(visited_thresholds_per_node))])
     bottleneck_node = np.where(max_thresholds_per_node == np.min(max_thresholds_per_node))[0]
     
     # ensure at least two thresholds before accessing them
@@ -87,7 +90,6 @@ def run_cascade_multiple_populations(adj_matrix, thr, n_pop, n_sim):
     
     while len(infected_nodes_per_run) < n_sim:
         seed_node_indices = sorted(np.random.choice(adj_matrix.shape[0], size=n_pop, replace=False).tolist())
-        print("seeds:", seed_node_indices)
         seed_node_indices = [[ii] for ii in seed_node_indices]
         infected_nodes = np.zeros((adj_matrix.shape[0]))
         input_to_node = np.sum(adj_matrix, axis=0)
@@ -172,9 +174,7 @@ def main(input_file_path):
     starting_thr = 0.0015
     start_time = time.time()
     bottl_nodes, thr = find_thr(adj_matrix_clean, starting_thr)
-    
     print(f"Time to find threshold: {time.time() - start_time} seconds")
-    #print("threshold found:", thr)
     
     n_steps_needed = [None] * adj_matrix_clean.shape[0]
     
@@ -183,9 +183,6 @@ def main(input_file_path):
     
     start_time = time.time()
     _, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, 2, 10000)
-    
-    #print("infected nodes per run:", _)
-    
     print(f"Time to run competitive cascades: {time.time() - start_time} seconds")
     
     association_matrix_filename = f"derivatives/{sub_id}/dwi/association_matrix_{sub_id}.csv"
@@ -196,12 +193,21 @@ def main(input_file_path):
 
     
 if __name__ == "__main__":
-    # check if number of arguments is correct
-    if len(sys.argv) != 2:
-        print("Correct syntax: python this_script.py input_file_path")
+    # Check if the script is executed with the correct number of arguments
+    if len(sys.argv) != 1:
+        print("Correct syntax: cat input_file_list | python this_script.py")
         sys.exit(1)
     
-    # get input file path from the command-line arguments
-    input_file_path = sys.argv[1]
+    # Read file paths from standard input
+    input_file_paths = [line.strip() for line in sys.stdin]
     
-    main(input_file_path)
+    # adjust parallel processes according to machine capabilities
+    pool = Pool(processes=80)
+    pool.map(main, input_file_paths)
+
+########## HOW TO RUN ###########
+# from terminal, cd to dataset folder, you should have a folder called code in position ../code
+# therefore type these commands:
+# $ path_der="derivatives/"
+# $ find "$path_der" -type f -name '*5000000mio_connectome.csv' > "$path_der/connectome_files.txt"
+# $ cat "$path_der/connectome_files.txt" | python ../code/linear_threshold_model_association.py > sim_parallel.txt
