@@ -158,7 +158,7 @@ def main(input_file_path):
     zero_rows = np.where(np.sum(adj_matrix, 0) == 0)[0].tolist()
 
     # matrix filled with ones initially
-    zero_connection_nodes_matrix = np.ones_like(adj_matrix)
+    zero_connection_nodes_matrix = np.ones_like(adj_matrix, dtype=int)
 
     # Update rows and cols corresponding to zero-connection nodes to 0
     zero_connection_nodes_matrix[zero_rows, :] = 0
@@ -206,7 +206,7 @@ if __name__ == "__main__":
     pool.map(main, input_file_paths)
 
 ########## HOW TO RUN ###########
-# from terminal, cd to dataset folder, you should have a folder called code in position ../code
+# from terminal, cd to dataset folder, you should have a folder called "code" in position ../code
 # therefore type these commands:
 # $ path_der="derivatives/"
 # $ find "$path_der" -type f -name '*5000000mio_connectome.csv' > "$path_der/connectome_files.txt"
