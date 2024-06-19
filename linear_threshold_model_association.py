@@ -182,11 +182,12 @@ def main(input_file_path):
         n_steps_needed[ii] = len(run_cascade_single_population(adj_matrix_clean, thr, ii))
     
     start_time = time.time()
-    _, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, 2, 10000)
+    n_pop = 30
+    _, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, n_pop, 10000)
     print(f"Time to run competitive cascades: {time.time() - start_time} seconds")
     
-    association_matrix_filename = f"derivatives/{sub_id}/dwi/association_matrix_{sub_id}.csv"
-    zero_connection_nodes_filename = f"derivatives/{sub_id}/dwi/zero_connection_nodes_{sub_id}.csv"
+    association_matrix_filename = f"derivatives/{sub_id}/dwi/association_matrix_{sub_id}_{n_pop}.csv"
+    zero_connection_nodes_filename = f"derivatives/{sub_id}/dwi/zero_connection_nodes_{n_pop}.csv"
 
     np.savetxt(association_matrix_filename, association_matrix, delimiter=",")
     np.savetxt(zero_connection_nodes_filename, zero_connection_nodes_matrix, delimiter=",")
