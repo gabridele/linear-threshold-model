@@ -1,5 +1,5 @@
 import numpy as np
-import pandas as pd
+import pandas as pd # type: ignore
 import sys
 
 def restore_matrix(matrix_ass, matrix_zero):
@@ -20,7 +20,7 @@ def restore_matrix(matrix_ass, matrix_zero):
 
         return restored_matrix
 
-def main(input_ass, input_zero):
+def main(input_ass, input_zero, n_seeds):
     sub_id = input_ass.split('/')[-3]
     
     print('subject:', sub_id)
@@ -30,7 +30,7 @@ def main(input_ass, input_zero):
     
     restored_matrix = restore_matrix(matrix_ass, matrix_zero)
 
-    restored_matrix_filename = f"derivatives/{sub_id}/dwi/full_association_mtrix_{sub_id}.csv"
+    restored_matrix_filename = f"derivatives/{sub_id}/dwi/full_association_mtrix_{sub_id}_{n_seeds}seeds.csv"
 
     np.savetxt(restored_matrix_filename, restored_matrix, delimiter=",")
 
@@ -38,5 +38,6 @@ if __name__ == "__main__":
 
     input_ass = sys.argv[1]
     input_zero = sys.argv[2]
+    n_seeds = sys.argv[3]
     
-    main(input_ass, input_zero)
+    main(input_ass, input_zero, n_seeds)

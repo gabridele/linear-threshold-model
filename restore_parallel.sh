@@ -3,16 +3,17 @@ path_der="derivatives/"
 function restore {
     arg1="$1"
     sub_id=$(basename "$arg1" | grep -oP 'sub-\d+')
-    arg2="${arg1%association_matrix*}zero_connection_nodes_${sub_id}.csv"
-
+    n_seed=$(basename "$arg1" | awk -F '_' '{print $NF}' | cut -d 's' -f 1)
+    arg2="${arg1%association_matrix*}zero_connection_nodes_${sub_id}_${n_seed}seeds.csv"
+    
     echo -e "############# $sub_id, $arg1, $arg2"
-    python ../code/restore_ass_mtrx.py $arg1 $arg2
+    python ../code/restore_ass_mtrx.py $arg1 $arg2 $n_seed
 
 }
 
 export -f restore
 
-find "$path_der" -type f -name '*association_matrix_*.csv' > "$path_der/ass_mtrx_files.txt"
+find "$path_der" -type f -name '*association_matrix_*_2seeds.csv' > "$path_der/ass_mtrx_files.txt"
 
 N=100
 (
