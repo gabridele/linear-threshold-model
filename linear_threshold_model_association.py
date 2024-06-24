@@ -6,10 +6,11 @@
 
 from multiprocessing import Process
 import numpy as np
-import pandas as pd
+import pandas as pd # type: ignore
 import sys
 import time
 from multiprocessing import Pool
+from functools import partial
 
 def run_cascade_single_population(adj_matrix, thr, seed_node_index):
     infected_nodes = np.zeros((adj_matrix.shape[0]))
@@ -145,7 +146,7 @@ def run_cascade_multiple_populations(adj_matrix, thr, n_pop, n_sim):
     association_matrix /= n_sim
     return infected_nodes_per_run, association_matrix
 
-def main(input_file_path):
+def main(input_file_path, n_pop):
     
     # extract subject ID from the file path
     sub_id = input_file_path.split('/')[-3]
@@ -153,14 +154,14 @@ def main(input_file_path):
     adj_matrix = pd.read_csv(input_file_path, delimiter=',', header=None).to_numpy().astype(float)
     #adj_matrix = pd.read_csv('dummy_matrix_2.csv', header=None).to_numpy().astype(float)
     
-    print(f"now processing: {sub_id}")
+    print(f"now processing: {sub_id} with {n_pop} seeds competitive scenario")
     
     zero_rows = np.where(np.sum(adj_matrix, 0) == 0)[0].tolist()
 
     # matrix filled with ones initially
     zero_connection_nodes_matrix = np.ones_like(adj_matrix, dtype=int)
 
-    # Update rows and cols corresponding to zero-connection nodes to 0
+    # update rows and cols corresponding to zero-connection nodes to 0
     zero_connection_nodes_matrix[zero_rows, :] = 0
     zero_connection_nodes_matrix[:, zero_rows] = 0
 
@@ -182,7 +183,7 @@ def main(input_file_path):
         n_steps_needed[ii] = len(run_cascade_single_population(adj_matrix_clean, thr, ii))
     
     start_time = time.time()
-    n_pop = 2
+
     _, association_matrix = run_cascade_multiple_populations(adj_matrix_clean, thr, n_pop, 10000)
     print(f"Time to run competitive cascades: {time.time() - start_time} seconds")
     
@@ -194,21 +195,26 @@ def main(input_file_path):
 
     
 if __name__ == "__main__":
-    # Check if the script is executed with the correct number of arguments
-    if len(sys.argv) != 1:
-        print("Correct syntax: cat input_file_list | python this_script.py")
+ 
+    # Check if script is executed with correct num of args
+    if len(sys.argv) != 2:
+        print("Correct syntax: cat input_file_list | python [this_script.py] [n_pop]")
         sys.exit(1)
     
-    # Read file paths from standard input
     input_file_paths = [line.strip() for line in sys.stdin]
     
-    # adjust parallel processes according to machine capabilities
+    n_pop = int(sys.argv[1])
+
     pool = Pool(processes=80)
-    pool.map(main, input_file_paths)
+    pool.starmap(main, [(file_path, n_pop) for file_path in input_file_paths])
 
 ########## HOW TO RUN ###########
-# from terminal, cd to dataset folder, you should have a folder called "code" in position ../code
+# from terminal (bash), cd to dataset folder
+# you should also have a folder called "code" in position ../code
+# choose number of populations
 # therefore type these commands:
-# $ path_der="derivatives/"
-# $ find "$path_der" -type f -name '*5000000mio_connectome.csv' > "$path_der/connectome_files.txt"
-# $ cat "$path_der/connectome_files.txt" | python ../code/linear_threshold_model_association.py > sim_parallel.txt
+"""
+path_der="derivatives/"
+find "$path_der" -type f -name '*5000000mio_connectome.csv' > "$path_der/connectome_files.txt"
+cat "$path_der/connectome_files.txt" | python ../code/linear_threshold_model_association.py 2 > sim_parallel.txt
+"""
