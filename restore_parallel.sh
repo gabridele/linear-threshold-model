@@ -13,9 +13,9 @@ function restore {
 
 export -f restore
 
-find "$path_der" -type f -name '*association_matrix_*_2seeds.csv' > "$path_der/ass_mtrx_files.txt"
+find "$path_der" -type f -name '*association_matrix_*_30seeds.csv' > "$path_der/ass_mtrx_files.txt"
 
-N=100
+N=140
 (
 for ii in $(cat "$path_der/ass_mtrx_files.txt"); do 
    ((i=i%N)); ((i++==0)) && wait
