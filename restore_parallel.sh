@@ -7,7 +7,7 @@ function restore {
     arg2="${arg1%association_matrix*}zero_connection_nodes_${sub_id}_${n_seed}seeds.csv"
     
     echo -e "############# $sub_id, $arg1, $arg2"
-    python ../code/restore_ass_mtrx.py $arg1 $arg2 $n_seed
+    python ../code/restore_scale_assoc_mtrx.py $arg1 $arg2 $n_seed
 
 }
 

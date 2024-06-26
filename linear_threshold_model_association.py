@@ -216,5 +216,5 @@ if __name__ == "__main__":
 """
 path_der="derivatives/"
 find "$path_der" -type f -name '*5000000mio_connectome.csv' > "$path_der/connectome_files.txt"
-cat "$path_der/connectome_files.txt" | python ../code/linear_threshold_model_association.py 2 > sim_parallel.txt
+cat "$path_der/connectome_files.txt" | python ../code/linear_threshold_model_association.py [n_pop] > sim_parallel.txt
 """
