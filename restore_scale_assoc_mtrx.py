@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd # type: ignore
 import sys
+from sklearn.preprocessing import MinMaxScaler, minmax_scale
 
 def restore_matrix(matrix_ass, matrix_zero):
     
@@ -19,6 +20,16 @@ def restore_matrix(matrix_ass, matrix_zero):
                 restored_matrix[row, col] = matrix_ass[i, j]
 
         return restored_matrix
+    
+def scale(matrix):
+
+    full_assoc = matrix
+
+    scaler = MinMaxScaler(feature_range=(-1,1))
+    scaler.fit(full_assoc)
+    full_scaled = scaler.transform(full_assoc)
+    
+    return full_scaled
 
 def main(input_ass, input_zero, n_seeds):
     sub_id = input_ass.split('/')[-3]
@@ -29,10 +40,12 @@ def main(input_ass, input_zero, n_seeds):
     matrix_zero = pd.read_csv(input_zero, delimiter=',', header=None).to_numpy().astype(float)
     
     restored_matrix = restore_matrix(matrix_ass, matrix_zero)
+    
+    scaled_matrix = scale(restored_matrix)
+    
+    scaled_matrix_filename = f"derivatives/{sub_id}/dwi/scaled_full_association_mtrix_{sub_id}_{n_seeds}seeds.csv"
 
-    restored_matrix_filename = f"derivatives/{sub_id}/dwi/full_association_mtrix_{sub_id}_{n_seeds}seeds.csv"
-
-    np.savetxt(restored_matrix_filename, restored_matrix, delimiter=",")
+    np.savetxt(scaled_matrix_filename, scaled_matrix, delimiter=",")
 
 if __name__ == "__main__":
 
