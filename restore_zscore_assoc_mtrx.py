@@ -2,6 +2,12 @@ import numpy as np
 import pandas as pd # type: ignore
 import sys
 from sklearn.preprocessing import MinMaxScaler, minmax_scale
+"""
+quello che si potrebbe fare
+è di fare z scoring delle matrici di association weight
+e z scoring del valore empirico
+ma NON zscoring delle predizioni
+non normalizzare riga per riga """
 
 def restore_matrix(matrix_ass, matrix_zero):
     
@@ -21,15 +27,14 @@ def restore_matrix(matrix_ass, matrix_zero):
 
         return restored_matrix
     
-def scale(matrix):
-
-    full_assoc = matrix
-
-    scaler = MinMaxScaler(feature_range=(-1,1))
-    scaler.fit(full_assoc)
-    full_scaled = scaler.transform(full_assoc)
+def zscore(matrix):
+    # zscore each entry across entire matrix, not along axis
+    mean = np.mean(matrix)
+    std_dev = np.std(matrix)
     
-    return full_scaled
+    zscored_matrix = (matrix - mean) / std_dev
+    
+    return zscored_matrix
 
 def main(input_ass, input_zero, n_seeds):
     sub_id = input_ass.split('/')[-3]
@@ -41,11 +46,11 @@ def main(input_ass, input_zero, n_seeds):
     
     restored_matrix = restore_matrix(matrix_ass, matrix_zero)
     
-    scaled_matrix = scale(restored_matrix)
+    zscored_matrix = zscore(restored_matrix)
     
-    scaled_matrix_filename = f"derivatives/{sub_id}/dwi/scaled_full_association_mtrix_{sub_id}_{n_seeds}seeds.csv"
+    zscored_matrix_filename = f"derivatives/{sub_id}/dwi/zscored_full_association_mtrix_{sub_id}_{n_seeds}seeds.csv"
 
-    np.savetxt(scaled_matrix_filename, scaled_matrix, delimiter=",")
+    np.savetxt(zscored_matrix_filename, zscored_matrix, delimiter=",")
 
 if __name__ == "__main__":
 
