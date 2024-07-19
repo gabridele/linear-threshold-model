@@ -205,7 +205,7 @@ if __name__ == "__main__":
     
     n_pop = int(sys.argv[1])
 
-    pool = Pool(processes=139)
+    pool = Pool(processes=140)
     pool.starmap(main, [(file_path, n_pop) for file_path in input_file_paths])
 
 ########## HOW TO RUN ###########
@@ -216,5 +216,5 @@ if __name__ == "__main__":
 """
 path_der="derivatives/"
 find "$path_der" -type f -name '*5000000mio_connectome.csv' > "$path_der/connectome_files.txt"
-cat "$path_der/connectome_files.txt" | python ../code/linear_threshold_model_association.py [n_pop] > sim_parallel.txt
+cat "$path_der/connectome_files.txt" | python ../code/linear-threshold-model/linear_threshold_model_association.py [n_pop] > sim_parallel.txt
 """
