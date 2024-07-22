@@ -156,21 +156,27 @@ def main(input_file_path, n_pop):
     
     print(f"now processing: {sub_id} with {n_pop} seeds competitive scenario")
     
+    # identify zero connections and < 5 connection nodes
     zero_rows = np.where(np.sum(adj_matrix, 0) == 0)[0].tolist()
-
+    low_connection_nodes = np.where(np.sum(adj_matrix > 0, axis=0) <= 5)[0].tolist()
+    
+    # combine together
+    all_removed_nodes = sorted(zero_rows + low_connection_nodes)
+     
     # matrix filled with ones initially
     zero_connection_nodes_matrix = np.ones_like(adj_matrix, dtype=int)
+    
+    # update rows and cols corresponding to zero/low-connection nodes to 0
+    zero_connection_nodes_matrix[all_removed_nodes, :] = 0
+    zero_connection_nodes_matrix[:, all_removed_nodes] = 0
 
-    # update rows and cols corresponding to zero-connection nodes to 0
-    zero_connection_nodes_matrix[zero_rows, :] = 0
-    zero_connection_nodes_matrix[:, zero_rows] = 0
+    # remove those nodes from input matrix
+    adj_matrix_clean = np.delete(adj_matrix, all_removed_nodes, axis=0)
+    adj_matrix_clean = np.delete(adj_matrix_clean, all_removed_nodes, axis=1)
 
-    adj_matrix_clean = np.delete(adj_matrix, zero_rows, axis=0)
-    adj_matrix_clean = np.delete(adj_matrix_clean, zero_rows, axis=1)
-
-    iu2 = np.triu_indices(adj_matrix_clean.shape[0], 1)
-    a = adj_matrix_clean[iu2]
-    density = np.count_nonzero(a) / a.shape[0]
+    #iu2 = np.triu_indices(adj_matrix_clean.shape[0], 1)
+    #a = adj_matrix_clean[iu2]
+    #density = np.count_nonzero(a) / a.shape[0]
     
     starting_thr = 0.0015
     start_time = time.time()
@@ -188,11 +194,10 @@ def main(input_file_path, n_pop):
     print(f"Time to run competitive cascades: {time.time() - start_time} seconds")
     
     association_matrix_filename = f"derivatives/{sub_id}/dwi/association_matrix_{sub_id}_{n_pop}seeds.csv"
-    zero_connection_nodes_filename = f"derivatives/{sub_id}/dwi/zero_connection_nodes_{sub_id}_{n_pop}seeds.csv"
+    removed_nodes_filename = f"derivatives/{sub_id}/dwi/removed_nodes_{sub_id}_{n_pop}seeds.csv"
 
     np.savetxt(association_matrix_filename, association_matrix, delimiter=",")
-    np.savetxt(zero_connection_nodes_filename, zero_connection_nodes_matrix, delimiter=",")
-
+    np.savetxt(removed_nodes_filename, all_removed_nodes, delimiter=",", fmt="%d")
     
 if __name__ == "__main__":
  
