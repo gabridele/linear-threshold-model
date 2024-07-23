@@ -161,7 +161,7 @@ def main(input_file_path, n_pop):
     low_connection_nodes = np.where(np.sum(adj_matrix > 0, axis=0) <= 5)[0].tolist()
     
     # combine together
-    all_removed_nodes = sorted(zero_rows + low_connection_nodes)
+    all_removed_nodes = sorted(set(zero_rows + low_connection_nodes))
      
     # matrix filled with ones initially
     zero_connection_nodes_matrix = np.ones_like(adj_matrix, dtype=int)
