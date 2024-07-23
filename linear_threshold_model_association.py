@@ -4,13 +4,11 @@
 @author: gabriele de leonardis
 """
 
-from multiprocessing import Process
 import numpy as np
 import pandas as pd # type: ignore
 import sys
 import time
 from multiprocessing import Pool
-from functools import partial
 
 def run_cascade_single_population(adj_matrix, thr, seed_node_index):
     infected_nodes = np.zeros((adj_matrix.shape[0]))
@@ -162,7 +160,7 @@ def main(input_file_path, n_pop):
     
     # combine together
     all_removed_nodes = sorted(set(zero_rows + low_connection_nodes))
-     
+    
     # matrix filled with ones initially
     zero_connection_nodes_matrix = np.ones_like(adj_matrix, dtype=int)
     
@@ -197,7 +195,7 @@ def main(input_file_path, n_pop):
     removed_nodes_filename = f"derivatives/{sub_id}/dwi/removed_nodes_{sub_id}_{n_pop}seeds.csv"
 
     np.savetxt(association_matrix_filename, association_matrix, delimiter=",")
-    np.savetxt(removed_nodes_filename, all_removed_nodes, delimiter=",", fmt="%d")
+    np.savetxt(removed_nodes_filename, zero_connection_nodes_matrix, delimiter=",", fmt="%d")
     
 if __name__ == "__main__":
  
