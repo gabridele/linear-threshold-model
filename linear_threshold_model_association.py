@@ -208,7 +208,7 @@ if __name__ == "__main__":
     
     n_pop = int(sys.argv[1])
 
-    pool = Pool(processes=140)
+    pool = Pool(processes=142)
     pool.starmap(main, [(file_path, n_pop) for file_path in input_file_paths])
 
 ########## HOW TO RUN ###########
