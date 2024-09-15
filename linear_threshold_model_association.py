@@ -154,7 +154,7 @@ def main(input_file_path, n_pop):
     
     print(f"now processing: {sub_id} with {n_pop} seeds competitive scenario")
     
-    # identify zero connections and < 5 connection nodes
+    # identify zero connections and <= 5 connection nodes
     zero_rows = np.where(np.sum(adj_matrix, 0) == 0)[0].tolist()
     low_connection_nodes = np.where(np.sum(adj_matrix > 0, axis=0) <= 5)[0].tolist()
     
