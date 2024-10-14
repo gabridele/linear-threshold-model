@@ -1,4 +1,6 @@
 path_der="derivatives/"
+# function to run python script in parallel
+# change N according to number of simultaneous jobs
 
 function restore {
     arg1="$1"
@@ -6,7 +8,7 @@ function restore {
     n_seed=$(basename "$arg1" | awk -F '_' '{print $NF}' | cut -d 's' -f 1)
     arg2="${arg1%association_matrix*}removed_nodes_${sub_id}_2seeds.csv"
     
-    echo -e "############# $sub_id, $arg1, $arg2"
+    echo -e "############# $sub_id, $arg1, $arg2 \n"
     python ../code/linear-threshold-model/restore_assoc_mtrx.py $arg1 $arg2 $n_seed
 
 }
