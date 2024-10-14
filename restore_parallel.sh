@@ -1,4 +1,6 @@
 path_der="derivatives/"
+# function to run python script in parallel
+# change N according to number of simultaneous jobs
 
 function restore {
     arg1="$1"
