@@ -1,9 +1,9 @@
 import numpy as np
-import pandas as pd # type: ignore
+import pandas as pd
 import sys
 
 def restore_matrix(matrix_ass, matrix_zero):
-
+    # function to add back the previously removed nodes. Getting back to 454 parcels
     original_size = 454
     if matrix_ass.shape == (original_size, original_size):
         return matrix_ass
@@ -21,10 +21,10 @@ def restore_matrix(matrix_ass, matrix_zero):
         return restored_matrix
         
 def main(input_ass, input_zero, n_seeds):
+    # get sub ID
     sub_id = input_ass.split('/')[-3]
     
-    #print('subject:', sub_id)
-    
+    # load association matrix and matrix containing indices of removed nodes
     matrix_ass = pd.read_csv(input_ass, delimiter=',', header=None).to_numpy().astype(float)
     matrix_zero = pd.read_csv(input_zero, delimiter=',', header=None).to_numpy().astype(float)
     
